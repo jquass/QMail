@@ -1,4 +1,4 @@
-FROM openjdk:22
+FROM openjdk:17
 LABEL authors="jquass"
 
 COPY /target/QMail-1.0-SNAPSHOT.jar /tmp/app.jar
