@@ -33,7 +33,7 @@ services:
       - ONLY_SUBDOMAINS=true #optional
       - STAGING=false #optional
     volumes:
-      - ./proxy-confs/api.subdomain.conf:/config/nginx/site-confs/api.conf
+      - ./swag/api.subdomain.conf:/config/nginx/site-confs/api.conf
     ports:
       - "443:443"
       - "80:80"

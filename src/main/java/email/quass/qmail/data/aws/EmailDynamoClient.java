@@ -27,7 +27,7 @@ public class EmailDynamoClient {
             .region(QMailEnv.REGION.asRegion())
             .build();
     private static final String TABLE = QMailEnv.EMAIL_TABLE_NAME.asString();
-    private static final String DOMAIN = QMailEnv.USER_DOMAIN.asString();
+    private static final String DOMAIN = QMailEnv.EMAIL_DOMAIN.asString();
 
     public static void insertS3MimeMessage(S3MimeMessage s3MimeMessage) throws MessagingException, IOException {
         MimeMessage mimeMessage = s3MimeMessage.getMimeMessage();
@@ -43,7 +43,6 @@ public class EmailDynamoClient {
 
         if (response.hasItem()) {
             LOG.warn("Message with id {} already exists", id);
-            // TODO Move to S3 Sub Folder to avoid re processing
             return;
         }
 

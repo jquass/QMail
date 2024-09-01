@@ -5,7 +5,7 @@ import software.amazon.awssdk.regions.Region;
 public enum QMailEnv {
     REGION,
     EMAIL_TABLE_NAME,
-    USER_DOMAIN,
+    EMAIL_DOMAIN,
     USER_TABLE_NAME,
     S3_BUCKET,
     PASSWORD_SALT,
