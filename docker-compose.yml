@@ -46,8 +46,8 @@ services:
       - ONLY_SUBDOMAINS=true #optional
       - STAGING=false #optional
     ports:
-      - "443:8080"
-      - "80:8080"
+      - "443:443"
+      - "80:80"
     restart: unless-stopped
     networks:
       - backend
