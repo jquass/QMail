@@ -1,6 +1,14 @@
 # QMail
 Privacy focused alternative to GMail
 
+# Alias
+
+GMail offers a way to use aliaes when providing your email address either by using periods (`ex.am.pl.e@mail.com`, `exam.ple@gmail.com`) or a plus sign (`example+one@gmail.com`, `example+two@gmail.com`).
+
+Both of these appraches allow the recipienct of the email address to figure out your real address and just send to that instead (`example@gmail.com`).
+
+This project intends to make it easy to generate aliases that don't expose the real address at the same time.
+
 # Dependencies
 
 This project is designed to run on AWS. 
