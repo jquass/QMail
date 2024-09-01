@@ -45,7 +45,7 @@ services:
       - ONLY_SUBDOMAINS=true #optional
       - STAGING=false #optional
     volumes:
-      - /proxy-confs/api.subdomain.conf:/config/nginx/site-confs/default.conf
+      - /config/api.subdomain.conf:/config/nginx/site-confs/default.conf
 
     ports:
       - "443:443"

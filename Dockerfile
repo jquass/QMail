@@ -5,6 +5,7 @@ WORKDIR /tmp
 
 COPY /target/QMail-1.0-SNAPSHOT.jar /tmp/app.jar
 COPY /run/QMailService.yml /tmp/app.yml
+COPY /proxy-confs/* /tmp/config
 
 EXPOSE 8080
 EXPOSE 8081
