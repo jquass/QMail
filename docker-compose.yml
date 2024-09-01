@@ -45,7 +45,7 @@ services:
       - ONLY_SUBDOMAINS=true #optional
       - STAGING=false #optional
     volumes:
-      - /config:/config
+      - //swag/config/nginx/proxy-confs:/config
     ports:
       - "443:443"
       - "80:80"
