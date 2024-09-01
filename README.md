@@ -19,5 +19,9 @@ Copy .env.example file to .env and fill out details
 
 `mvn package`
 
-`docker compose up swag web`
+`docker compose up web`
+
+If running in production, also start swag
+
+`docker compose up swag`
 
