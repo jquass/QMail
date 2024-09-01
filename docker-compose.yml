@@ -1,4 +1,3 @@
-version: "2.1"
 
 networks:
   backend:
@@ -46,7 +45,7 @@ services:
       - ONLY_SUBDOMAINS=true #optional
       - STAGING=false #optional
     volumes:
-      - /config/nginx/proxy-confs:/config
+      - /config:/config
     ports:
       - "443:443"
       - "80:80"
