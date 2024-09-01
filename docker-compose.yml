@@ -45,6 +45,8 @@ services:
       - EMAIL=webmaster@quass.email #optional
       - ONLY_SUBDOMAINS=true #optional
       - STAGING=false #optional
+    volumes:
+      - /config/nginx/proxy-confs:/config
     ports:
       - "443:443"
       - "80:80"
