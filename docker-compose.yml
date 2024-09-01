@@ -1,3 +1,5 @@
+version: "2.1"
+
 networks:
   backend:
     driver: bridge
@@ -9,9 +11,8 @@ services:
     env_file: ".env"
     platform: linux/x86_64
     ports:
-      - "80:8080"
-      - "81:8081"
-      - "443:8080"
+      - "8080:8080"
+      - "8081:8081"
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,8 +24,30 @@ services:
     ports:
       - "8080:8080"
       - "8081:8081"
+
     build:
       context: .
       dockerfile: Dockerfile
+    networks:
+      - backend
+  swag:
+    image: lscr.io/linuxserver/swag
+    container_name: swag
+    cap_add:
+      - NET_ADMIN
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=UTC
+      - URL=quass.email
+      - SUBDOMAINS=api,
+      - VALIDATION=http
+      - EMAIL=webmaster@quass.email #optional
+      - ONLY_SUBDOMAINS=true #optional
+      - STAGING=false #optional
+    ports:
+      - "443:8080"
+      - "80:8080"
+    restart: unless-stopped
     networks:
       - backend
