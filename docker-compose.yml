@@ -1,4 +1,3 @@
-
 networks:
   backend:
     driver: bridge
@@ -17,18 +16,7 @@ services:
       dockerfile: Dockerfile
     networks:
       - backend
-  local:
-    env_file: ".env"
-    platform: linux/x86_64
-    ports:
-      - "8080:8080"
-      - "8081:8081"
 
-    build:
-      context: .
-      dockerfile: Dockerfile
-    networks:
-      - backend
   swag:
     image: lscr.io/linuxserver/swag
     container_name: swag
@@ -45,8 +33,7 @@ services:
       - ONLY_SUBDOMAINS=true #optional
       - STAGING=false #optional
     volumes:
-      - /config/api.subdomain.conf:/config/nginx/site-confs/default.conf
-
+      - ./proxy-confs/api.subdomain.conf:/config/nginx/site-confs/api.conf
     ports:
       - "443:443"
       - "80:80"
