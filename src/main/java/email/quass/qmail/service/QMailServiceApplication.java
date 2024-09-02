@@ -10,19 +10,18 @@ import io.dropwizard.core.setup.Environment;
 
 public class QMailServiceApplication extends Application<QMailServiceConfiguration> {
 
-    public static void main(String[] args) throws Exception {
-        new QMailServiceApplication()
-                .run(args);
-    }
+  public static void main(String[] args) throws Exception {
+    new QMailServiceApplication().run(args);
+  }
 
-    @Override
-    public void run(QMailServiceConfiguration configuration, Environment environment) {
-        environment.jersey().setUrlPattern("/api");
+  @Override
+  public void run(QMailServiceConfiguration configuration, Environment environment) {
+    environment.jersey().setUrlPattern("/api");
 
-        environment.jersey().register(CorsFilter.class);
-        environment.jersey().register(SessionFilter.class);
+    environment.jersey().register(CorsFilter.class);
+    environment.jersey().register(SessionFilter.class);
 
-        environment.jersey().register(new LoginResource());
-        environment.jersey().register(new InboxResource());
-    }
+    environment.jersey().register(new LoginResource());
+    environment.jersey().register(new InboxResource());
+  }
 }

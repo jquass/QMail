@@ -1,16 +1,14 @@
 package email.quass.qmail.core.login;
 
 import email.quass.qmail.core.QMailStyle;
-import org.immutables.value.Value;
-
 import java.util.Optional;
+import org.immutables.value.Value;
 
 @QMailStyle
 @Value.Immutable
 public interface SessionIF {
 
-    Optional<String> getUsername();
+  Optional<String> getUsername();
 
-    Optional<String> getKey();
-
+  Optional<String> getKey();
 }

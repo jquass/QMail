@@ -1,24 +1,23 @@
 package email.quass.qmail.core.email;
 
 import email.quass.qmail.core.QMailStyle;
-import org.immutables.value.Value;
-
 import java.time.Instant;
 import java.util.Optional;
+import org.immutables.value.Value;
 
 @QMailStyle
 @Value.Immutable
 public interface EmailIF {
 
-    String getTo();
+  String getTo();
 
-    String getFrom();
+  String getFrom();
 
-    String getSubject();
+  String getSubject();
 
-    String getBody();
+  String getBody();
 
-    Optional<String> getBodyHtml();
+  Optional<String> getBodyHtml();
 
-    Instant getDate();
+  Instant getDate();
 }

@@ -7,8 +7,7 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface UserIF {
 
-    String getUsername();
+  String getUsername();
 
-    String getPasswordHash();
-
+  String getPasswordHash();
 }

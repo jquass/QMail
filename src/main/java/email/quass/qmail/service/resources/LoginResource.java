@@ -13,7 +13,6 @@ import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
 import java.util.Optional;
 import java.util.UUID;
 
@@ -22,28 +21,24 @@ import java.util.UUID;
 @Produces(MediaType.APPLICATION_JSON)
 public class LoginResource {
 
-    public LoginResource() {
+  public LoginResource() {}
+
+  @POST
+  public QMailResponse<Session> login(Login login) {
+
+    String sessionKey = UUID.randomUUID().toString();
+    Optional<User> user = UserDynamoClient.getUser(login.getUsername());
+    String loginPasswordHash = PasswordHasher.hashPassword(login.getPassword());
+    Session session = Session.builder().setUsername(login.getUsername()).setKey(sessionKey).build();
+
+    if (user.isPresent() && user.get().getPasswordHash().equals(loginPasswordHash)) {
+      SessionCache.saveUserSession(login.getUsername(), sessionKey);
+      return QMailResponse.<Session>builder().setType(ResponseType.OK).setContent(session).build();
     }
 
-    @POST
-    public QMailResponse<Session> login(Login login) {
-
-        String sessionKey = UUID.randomUUID().toString();
-        Optional<User> user = UserDynamoClient.getUser(login.getUsername());
-        String loginPasswordHash = PasswordHasher.hashPassword(login.getPassword());
-        Session session = Session.builder().setUsername(login.getUsername()).setKey(sessionKey).build();
-
-        if (user.isPresent() && user.get().getPasswordHash().equals(loginPasswordHash)) {
-            SessionCache.saveUserSession(login.getUsername(), sessionKey);
-            return QMailResponse.<Session>builder()
-                    .setType(ResponseType.OK)
-                    .setContent(session)
-                    .build();
-        }
-
-        return QMailResponse.<Session>builder()
-                .setType(ResponseType.UNAUTHORIZED)
-                .setContent(Session.builder().build())
-                .build();
-    }
+    return QMailResponse.<Session>builder()
+        .setType(ResponseType.UNAUTHORIZED)
+        .setContent(Session.builder().build())
+        .build();
+  }
 }
