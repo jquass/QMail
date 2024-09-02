@@ -21,7 +21,7 @@ public class SessionFilter implements ContainerRequestFilter {
   @Override
   public void filter(ContainerRequestContext requestContext) {
     if (!requestContext.getUriInfo().getRequestUri().getPath().equals("/api/login")) {
-      LOG.debug("Verifying user session");
+      LOG.info("Verifying user session");
       if (requestContext.getHeaders().containsKey(SessionHeader.SESSION_ID.getHeader())
           && requestContext.getHeaders().containsKey(SessionHeader.USERNAME.getHeader())) {
         String sessionId =
@@ -29,12 +29,12 @@ public class SessionFilter implements ContainerRequestFilter {
         String username = requestContext.getHeaders().getFirst(SessionHeader.USERNAME.getHeader());
         if (SessionCache.getUserSession(username).isPresent()
             && SessionCache.getUserSession(username).get().equals(sessionId)) {
-          LOG.debug("User session valid");
+          LOG.info("User session valid");
           return;
         }
       }
 
-      LOG.debug("User session invalid");
+      LOG.info("User session invalid");
       QMailResponse<Session> response =
           QMailResponse.<Session>builder().setType(ResponseType.UNAUTHORIZED).build();
       requestContext.abortWith(

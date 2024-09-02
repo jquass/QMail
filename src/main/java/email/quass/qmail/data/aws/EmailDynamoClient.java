@@ -73,6 +73,7 @@ public class EmailDynamoClient {
   public static List<Email> listEmails(String username, Instant from) {
     AttributeValue recipient = AttributeValue.fromS(username + "@" + DOMAIN);
     AttributeValue dateMs = AttributeValue.fromN(String.valueOf(from.toEpochMilli()));
+    LOG.info("Listing emails for {} from {}", recipient, dateMs);
     QueryRequest request =
         QueryRequest.builder()
             .tableName(TABLE)

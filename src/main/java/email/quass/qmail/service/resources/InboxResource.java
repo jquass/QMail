@@ -27,6 +27,7 @@ public class InboxResource {
   public QMailResponse<List<Email>> getInbox(@HeaderParam("X-USERNAME") String username) {
     // TODO Pass in from based on UI state
     Instant from = Instant.now().minus(30, ChronoUnit.DAYS);
+    LOG.info("Getting inbox for {} from {}", username, from);
     return QMailResponse.<List<Email>>builder()
         .setType(ResponseType.OK)
         .setContent(EmailDynamoClient.listEmails(username, from))
