@@ -43,19 +43,33 @@ public class EmailDynamoClient {
 
         if (response.hasItem()) {
             LOG.warn("Message with id {} already exists", id);
+            EmailS3Client.archiveS3MimeMessage(s3MimeMessage, response.item().get("recipient").s());
             return;
         }
+
+        Map<String, AttributeValue> attributeValueMap = MimeMessageToAttributeValueMapper.map(
+                id,
+                mimeMessage,
+                s3Object.lastModified()
+        );
+
+        if (!attributeValueMap.containsKey("recipient")) {
+            LOG.warn("Could not determine recipient for message {}", id);
+            return;
+        }
+
+        String recipient = attributeValueMap.get("recipient").s();
 
         PutItemRequest request = PutItemRequest.builder()
                 .tableName(TABLE)
                 .item(MimeMessageToAttributeValueMapper.map(id, mimeMessage, s3Object.lastModified()))
                 .build();
 
-        LOG.debug("Dynamo Request: {}", request);
-
         DYNAMO_DB_CLIENT.putItem(request);
-        // TODO Move to S3 Sub Folder to avoid re processing
+        EmailS3Client.archiveS3MimeMessage(s3MimeMessage, recipient);
     }
+
+
 
     public static List<Email> listEmails(String username, Instant from) {
         AttributeValue recipient = AttributeValue.fromS(username + "@" + DOMAIN);

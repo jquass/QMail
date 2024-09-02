@@ -4,6 +4,7 @@ import email.quass.qmail.core.email.Email;
 import email.quass.qmail.core.email.S3MimeMessage;
 import email.quass.qmail.core.http.QMailResponse;
 import email.quass.qmail.core.http.ResponseType;
+import email.quass.qmail.core.session.SessionHeader;
 import email.quass.qmail.data.aws.EmailDynamoClient;
 import email.quass.qmail.data.aws.EmailS3Client;
 import jakarta.ws.rs.*;
