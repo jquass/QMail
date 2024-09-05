@@ -5,8 +5,11 @@ import email.quass.qmail.core.email.S3MimeMessage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Properties;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -39,6 +42,10 @@ public class EmailS3Client {
       S3EncryptionClient.builder().wrappedClient(S3_CLIENT).keyring(KMS_KEYRING).build();
   private static final String BUCKET_INBOX = QMailEnv.S3_BUCKET_INBOX.asString();
   private static final String BUCKET_ARCHIVE = QMailEnv.S3_BUCKET_ARCHIVE.asString();
+  private static final DateTimeFormatter DATE_TIME_FORMAT =
+      DateTimeFormatter.ofPattern("yyyy.MM.dd")
+          .withLocale(Locale.ENGLISH)
+          .withZone(ZoneId.of("UTC"));
 
   public EmailS3Client() {}
 
@@ -47,7 +54,6 @@ public class EmailS3Client {
         S3_CLIENT_ENCRYPTED.listObjects(ListObjectsRequest.builder().bucket(BUCKET_INBOX).build());
     List<S3MimeMessage> messages = new ArrayList<>();
     for (S3Object s3Object : listObjectsResponse.contents()) {
-      LOG.info("Processing message {}", s3Object.key());
       GetObjectRequest request =
           GetObjectRequest.builder().bucket(BUCKET_INBOX).key(s3Object.key()).build();
       ResponseInputStream<GetObjectResponse> getObjectResponse =
@@ -66,15 +72,14 @@ public class EmailS3Client {
     return messages;
   }
 
-  public static void archiveS3MimeMessage(S3MimeMessage s3MimeMessage, String recipient) {
-    String user = recipient.substring(0, recipient.indexOf("@"));
-
+  public static void archiveS3MimeMessage(S3MimeMessage s3MimeMessage) {
+    String folder = DATE_TIME_FORMAT.format(s3MimeMessage.getS3Object().lastModified());
     CopyObjectRequest copyObjectRequest =
         CopyObjectRequest.builder()
             .sourceBucket(BUCKET_INBOX)
             .sourceKey(s3MimeMessage.getS3Object().key())
             .destinationBucket(BUCKET_ARCHIVE)
-            .destinationKey(user + "/" + s3MimeMessage.getS3Object().key())
+            .destinationKey(folder + "/" + s3MimeMessage.getS3Object().key())
             .build();
     S3_CLIENT.copyObject(copyObjectRequest);
 

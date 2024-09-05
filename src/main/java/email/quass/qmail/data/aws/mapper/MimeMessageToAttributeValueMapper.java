@@ -39,25 +39,26 @@ public class MimeMessageToAttributeValueMapper {
     }
 
     Map<String, AttributeValue> values = new HashMap<>();
-    values.put("id", AttributeValue.builder().s(id).build());
-    values.put("content_type", AttributeValue.builder().s(mimeMessage.getContentType()).build());
-    values.put("content", AttributeValue.builder().s(content).build());
-    values.put("content_html", AttributeValue.builder().s(contentHtml).build());
-    values.put("date_ms", AttributeValue.builder().n(String.valueOf(date.toEpochMilli())).build());
+
+    values.put("id", AttributeValue.fromS(id));
+    values.put("content_type", AttributeValue.fromS(mimeMessage.getContentType()));
+    values.put("content", AttributeValue.fromS(content));
+    values.put("content_html", AttributeValue.fromS(contentHtml));
+    values.put("date_ms", AttributeValue.fromN(String.valueOf(date.toEpochMilli())));
 
     List<AttributeValue> headers = new ArrayList<>();
     for (Iterator<Header> it = mimeMessage.getAllHeaders().asIterator(); it.hasNext(); ) {
       Header header = it.next();
       if (header.getName().equalsIgnoreCase("To")) {
-        values.put("recipient", AttributeValue.builder().s(header.getValue()).build());
+        values.put("recipients", AttributeValue.fromS(header.getValue()));
       } else if (header.getName().equalsIgnoreCase("From")) {
         values.put("sender", AttributeValue.fromS(header.getValue()));
       } else if (header.getName().equalsIgnoreCase("Subject")) {
         values.put("subject", AttributeValue.fromS(header.getValue()));
       }
-      headers.add(AttributeValue.builder().s(header.getName() + ": " + header.getValue()).build());
+      headers.add(AttributeValue.fromS(header.getName() + ": " + header.getValue()));
     }
-    values.put("headers", AttributeValue.builder().l(headers).build());
+    values.put("headers", AttributeValue.fromL(headers));
 
     return values;
   }

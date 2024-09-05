@@ -16,7 +16,8 @@ public class AttributeValueToEmailMapper {
     for (Map<String, AttributeValue> attributeValue : attributeValues) {
       Email email =
           Email.builder()
-              .setTo(attributeValue.get("recipient").s())
+              .setUsername(attributeValue.get("username").s())
+              .setTo(attributeValue.get("recipients").s())
               .setFrom(attributeValue.get("sender").s())
               .setSubject(attributeValue.get("subject").s())
               .setBody(attributeValue.get("content").s())

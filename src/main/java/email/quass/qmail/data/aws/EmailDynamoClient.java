@@ -5,8 +5,10 @@ import email.quass.qmail.core.email.Email;
 import email.quass.qmail.core.email.S3MimeMessage;
 import email.quass.qmail.data.aws.mapper.AttributeValueToEmailMapper;
 import email.quass.qmail.data.aws.mapper.MimeMessageToAttributeValueMapper;
+import email.quass.qmail.data.aws.mapper.RecipientHeaderMapper;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.mail.MessagingException;
@@ -15,8 +17,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.GetItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.GetItemResponse;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryRequest;
 import software.amazon.awssdk.services.dynamodb.model.QueryResponse;
@@ -29,60 +29,42 @@ public class EmailDynamoClient {
   private static final DynamoDbClient DYNAMO_DB_CLIENT =
       DynamoDbClient.builder().region(QMailEnv.REGION.asRegion()).build();
   private static final String TABLE = QMailEnv.EMAIL_TABLE_NAME.asString();
-  private static final String DOMAIN = QMailEnv.EMAIL_DOMAIN.asString();
 
   public static void insertS3MimeMessage(S3MimeMessage s3MimeMessage)
       throws MessagingException, IOException {
     MimeMessage mimeMessage = s3MimeMessage.getMimeMessage();
     S3Object s3Object = s3MimeMessage.getS3Object();
     String id = s3Object.key();
-
-    GetItemResponse response =
-        DYNAMO_DB_CLIENT.getItem(
-            GetItemRequest.builder()
-                .key(Map.of("id", AttributeValue.fromS(id)))
-                .tableName(TABLE)
-                .build());
-
-    if (response.hasItem()) {
-      LOG.warn("Message with id {} already exists", id);
-      EmailS3Client.archiveS3MimeMessage(s3MimeMessage, response.item().get("recipient").s());
-      return;
-    }
-
     Map<String, AttributeValue> attributeValueMap =
         MimeMessageToAttributeValueMapper.map(id, mimeMessage, s3Object.lastModified());
-
-    if (!attributeValueMap.containsKey("recipient")) {
-      LOG.warn("Could not determine recipient for message {}", id);
+    if (!attributeValueMap.containsKey("recipients")) {
+      LOG.warn("Could not determine recipients for message {}", id);
+      EmailS3Client.archiveS3MimeMessage(s3MimeMessage);
       return;
     }
 
-    String recipient = attributeValueMap.get("recipient").s();
-
-    PutItemRequest request =
-        PutItemRequest.builder()
-            .tableName(TABLE)
-            .item(MimeMessageToAttributeValueMapper.map(id, mimeMessage, s3Object.lastModified()))
-            .build();
-
-    DYNAMO_DB_CLIENT.putItem(request);
-    EmailS3Client.archiveS3MimeMessage(s3MimeMessage, recipient);
+    String recipients = attributeValueMap.get("recipients").s();
+    for (String username : RecipientHeaderMapper.getUsernames(recipients)) {
+      LOG.info("Created record for user {}", username);
+      Map<String, AttributeValue> userMap = new HashMap<>(attributeValueMap);
+      userMap.put("username", AttributeValue.fromS(username));
+      PutItemRequest request = PutItemRequest.builder().tableName(TABLE).item(userMap).build();
+      DYNAMO_DB_CLIENT.putItem(request);
+    }
+    EmailS3Client.archiveS3MimeMessage(s3MimeMessage);
   }
 
   public static List<Email> listEmails(String username, Instant from) {
-    AttributeValue recipient = AttributeValue.fromS(username + "@" + DOMAIN);
     AttributeValue dateMs = AttributeValue.fromN(String.valueOf(from.toEpochMilli()));
-    LOG.info("Listing emails for {} from {}", recipient, dateMs);
+    LOG.info("Listing emails for {} from {}", username, dateMs);
     QueryRequest request =
         QueryRequest.builder()
             .tableName(TABLE)
-            .indexName("recipient-date_ms-index")
-            .keyConditionExpression("recipient = :recipient AND date_ms > :date_ms")
+            .keyConditionExpression("username = :username AND date_ms >= :date_ms")
             .expressionAttributeValues(
                 Map.of(
-                    ":recipient", recipient,
-                    ":date_ms", dateMs))
+                    ":username", AttributeValue.fromS(username),
+                    ":date_ms", AttributeValue.fromN(String.valueOf(from.toEpochMilli()))))
             .build();
     QueryResponse response = DYNAMO_DB_CLIENT.query(request);
     if (!response.hasItems()) {

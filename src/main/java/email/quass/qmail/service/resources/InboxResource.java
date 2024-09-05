@@ -41,9 +41,9 @@ public class InboxResource {
     for (S3MimeMessage s3MimeMessage : s3MimeMessages) {
       try {
         EmailDynamoClient.insertS3MimeMessage(s3MimeMessage);
-        // TODO Move S3 Object to Sub Folder to avoid re processing old
       } catch (MessagingException | IOException e) {
         LOG.error("Error inserting s3 mime message", e);
+        return QMailResponse.<List<Email>>builder().setType(ResponseType.ERROR).build();
       }
     }
 

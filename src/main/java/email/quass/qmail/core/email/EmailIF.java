@@ -20,4 +20,6 @@ public interface EmailIF {
   Optional<String> getBodyHtml();
 
   Instant getDate();
+
+  String getUsername();
 }
