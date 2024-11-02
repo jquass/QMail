@@ -8,7 +8,9 @@ import org.immutables.value.Value;
 @Value.Immutable
 public interface QMailResponseIF<V> {
 
+  @Value.Parameter
   Optional<V> getContent();
 
+  @Value.Parameter
   ResponseType getType();
 }

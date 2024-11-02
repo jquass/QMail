@@ -4,9 +4,11 @@ import software.amazon.awssdk.regions.Region;
 
 public enum QMailEnv {
   REGION,
+  TABLE_PREFIX,
   EMAIL_TABLE_NAME,
-  EMAIL_DOMAIN,
   USER_TABLE_NAME,
+  SENT_EMAIL_TABLE_NAME,
+  EMAIL_DOMAIN,
   S3_BUCKET_INBOX,
   S3_BUCKET_ARCHIVE,
   PASSWORD_SALT,
@@ -25,5 +27,9 @@ public enum QMailEnv {
 
   public Region asRegion() {
     return Region.of(asString());
+  }
+
+  public String withTablePrefix() {
+    return TABLE_PREFIX.asString() + "_" + asString();
   }
 }

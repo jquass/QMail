@@ -1,12 +1,11 @@
 package email.quass.qmail.core.email;
 
 import email.quass.qmail.core.QMailStyle;
-import java.util.Optional;
 import org.immutables.value.Value;
 
 @QMailStyle
 @Value.Immutable
-public interface EmailIF extends EmailFields, EmailMetadataFields {
+public interface SentEmailIF extends EmailFields, EmailMetadataFields {
 
-  Optional<String> getBodyHtml();
+  String getMessageId();
 }

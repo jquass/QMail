@@ -6,6 +6,7 @@ import email.quass.qmail.core.email.S3MimeMessage;
 import email.quass.qmail.data.aws.mapper.AttributeValueToEmailMapper;
 import email.quass.qmail.data.aws.mapper.MimeMessageToAttributeValueMapper;
 import email.quass.qmail.data.aws.mapper.RecipientHeaderMapper;
+import email.quass.qmail.data.aws.query.QueryRequestBuilder;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.HashMap;
@@ -28,7 +29,7 @@ public class EmailDynamoClient {
 
   private static final DynamoDbClient DYNAMO_DB_CLIENT =
       DynamoDbClient.builder().region(QMailEnv.REGION.asRegion()).build();
-  private static final String TABLE = QMailEnv.EMAIL_TABLE_NAME.asString();
+  private static final String TABLE = QMailEnv.EMAIL_TABLE_NAME.withTablePrefix();
 
   public static void insertS3MimeMessage(S3MimeMessage s3MimeMessage)
       throws MessagingException, IOException {
@@ -55,17 +56,8 @@ public class EmailDynamoClient {
   }
 
   public static List<Email> listEmails(String username, Instant from) {
-    AttributeValue dateMs = AttributeValue.fromN(String.valueOf(from.toEpochMilli()));
-    LOG.info("Listing emails for {} from {}", username, dateMs);
-    QueryRequest request =
-        QueryRequest.builder()
-            .tableName(TABLE)
-            .keyConditionExpression("username = :username AND date_ms >= :date_ms")
-            .expressionAttributeValues(
-                Map.of(
-                    ":username", AttributeValue.fromS(username),
-                    ":date_ms", AttributeValue.fromN(String.valueOf(from.toEpochMilli()))))
-            .build();
+    LOG.info("Listing emails for {} from {}", username, from);
+    QueryRequest request = QueryRequestBuilder.build(TABLE, username, from);
     QueryResponse response = DYNAMO_DB_CLIENT.query(request);
     if (!response.hasItems()) {
       return List.of();

@@ -3,6 +3,7 @@ package email.quass.qmail.data.aws.mapper;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.*;
+import javax.mail.BodyPart;
 import javax.mail.Header;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
@@ -25,13 +26,18 @@ public class MimeMessageToAttributeValueMapper {
     Object contentObject = mimeMessage.getContent();
     if (contentObject instanceof MimeMultipart mimeMultipart) {
       for (int i = 0; i < mimeMultipart.getCount(); i++) {
-        String body = (String) mimeMultipart.getBodyPart(i).getContent();
-        if (i == 0) {
-          content = body;
-        } else if (i == 1) {
-          contentHtml = body;
-        } else {
-          LOG.error("Unexpected Body For ID {} at {} : {}", id, i, body);
+        BodyPart bodyPart = mimeMultipart.getBodyPart(i);
+        try {
+          String body = (String) bodyPart.getContent();
+          if (i == 0) {
+            content = body;
+          } else if (i == 1) {
+            contentHtml = body;
+          } else {
+            LOG.error("Unexpected Body For ID {} at {} : {}", id, i, body);
+          }
+        } catch (ClassCastException e) {
+          LOG.error("Error parsing multipart body part {} of {}", i, bodyPart, e);
         }
       }
     } else {

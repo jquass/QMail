@@ -3,6 +3,7 @@ package email.quass.qmail.service;
 import email.quass.qmail.service.config.QMailServiceConfiguration;
 import email.quass.qmail.service.filters.CorsFilter;
 import email.quass.qmail.service.filters.SessionFilter;
+import email.quass.qmail.service.resources.EmailResource;
 import email.quass.qmail.service.resources.InboxResource;
 import email.quass.qmail.service.resources.LoginResource;
 import io.dropwizard.core.Application;
@@ -23,5 +24,6 @@ public class QMailServiceApplication extends Application<QMailServiceConfigurati
 
     environment.jersey().register(new LoginResource());
     environment.jersey().register(new InboxResource());
+    environment.jersey().register(new EmailResource());
   }
 }

@@ -16,5 +16,6 @@ import org.immutables.value.Value;
     visibility =
         Value.Style.ImplementationVisibility.PUBLIC, // Generated class will be always public
     privateNoargConstructor = true,
-    protectedNoargConstructor = true)
+    protectedNoargConstructor = true,
+    strictBuilder = true)
 public @interface QMailStyle {}

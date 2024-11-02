@@ -23,6 +23,9 @@ public class UserDynamoClient {
   private static final DynamoDbClient DYNAMO_DB_CLIENT =
       DynamoDbClient.builder().region(REGION).build();
 
+  private static final String TABLE =
+      QMailEnv.TABLE_PREFIX.asString() + "_" + QMailEnv.USER_TABLE_NAME.asString();
+
   public static void createUser(Login login) {
     Optional<User> userMaybe = getUser(login.getUsername());
     if (userMaybe.isPresent()) {
@@ -32,7 +35,7 @@ public class UserDynamoClient {
 
     PutItemRequest request =
         PutItemRequest.builder()
-            .tableName(QMailEnv.USER_TABLE_NAME.asString())
+            .tableName(TABLE)
             .item(
                 Map.of(
                     "username", AttributeValue.fromS(login.getUsername()),
@@ -48,7 +51,7 @@ public class UserDynamoClient {
         DYNAMO_DB_CLIENT.getItem(
             GetItemRequest.builder()
                 .key(Map.of("username", AttributeValue.fromS(username)))
-                .tableName(QMailEnv.USER_TABLE_NAME.asString())
+                .tableName(TABLE)
                 .build());
     if (!response.hasItem()) {
       return Optional.empty();
